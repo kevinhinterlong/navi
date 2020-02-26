@@ -27,6 +27,7 @@ data class Request(
     var sort: Array<Sort> = arrayOf(),
     var having: Array<Having> = arrayOf(),
 
+    var dataSource: String = "",
     var bardVersion: String,
     var requestVersion: String
 ) {
@@ -37,6 +38,6 @@ data class Request(
         arrayOf<Metric>(),
         LogicalTable("", ""),
         arrayOf<Sort>(),
-        arrayOf<Having>(), "v1", "v1"
+        arrayOf<Having>(), "", "v1", "v1"
     )
 }

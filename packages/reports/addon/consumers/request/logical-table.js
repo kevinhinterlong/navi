@@ -25,8 +25,8 @@ export default ActionConsumer.extend({
         oldTimeGrain = get(currentModel, 'request.logicalTable.timeGrain') || {
           name: ''
         }; // allow findBy to work when switching from an invalid table so switching to a valid table works
-
       set(currentModel, 'request.logicalTable.table', table);
+      set(currentModel, 'request.dataSource', table.source);
 
       /*
        * Since timeGrain is tied to logicalTable, send a timeGrain update
