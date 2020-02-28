@@ -6,7 +6,6 @@
 import DS from 'ember-data';
 import { hasParameters, getAliasedMetrics, canonicalizeMetric } from 'navi-data/utils/metric';
 import { get } from '@ember/object';
-import config from 'ember-get-config';
 
 export default DS.JSONSerializer.extend({
   /**

@@ -1,5 +1,5 @@
 /**
- * Copyright 2019, Yahoo Holdings Inc.
+ * Copyright 2020, Yahoo Holdings Inc.
  * Licensed under the terms of the MIT license. See accompanying LICENSE.md file for terms.
  */
 import DS from 'ember-data';
@@ -623,7 +623,8 @@ export default Fragment.extend(Validations, {
         })
       ),
 
-      responseFormat: clonedRequest.responseFormat
+      responseFormat: clonedRequest.responseFormat,
+      dataSource: clonedRequest.dataSource
     });
   },
 
