@@ -39,7 +39,7 @@ dependencies {
     //     exclude(group="org.eclipse.jetty", module="jetty-runner")
     // }
     runtimeOnly("com.facebook.presto","presto-jdbc","0.247")
-    // runtimeOnly("org.apache.calcite.avatica","avatica-core","1.17.0")
+    runtimeOnly("org.apache.calcite.avatica","avatica-core","1.17.0")
     // runtimeOnly("mysql","mysql-connector-java","8.0.23")
     // runtimeOnly("org.postgresql","postgresql","42.2.19")
     // drivers for models
