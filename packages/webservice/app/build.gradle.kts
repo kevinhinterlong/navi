@@ -59,7 +59,7 @@ tasks.withType<Test> {
         events("passed", "skipped", "failed")
     }
     // set JVM arguments for the test JVM(s)
-    jvmArgs ("-Xmx4608m")
+    jvmArgs ("-Xmx6608m")
 }
 
 tasks.withType<ProcessResources> {
