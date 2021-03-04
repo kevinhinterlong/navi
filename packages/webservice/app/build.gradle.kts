@@ -40,7 +40,7 @@ dependencies {
     // }
     runtimeOnly("com.facebook.presto","presto-jdbc","0.247")
     runtimeOnly("org.apache.calcite.avatica","avatica-core","1.17.0")
-    // runtimeOnly("mysql","mysql-connector-java","8.0.23")
+    runtimeOnly("mysql","mysql-connector-java","8.0.23")
     // runtimeOnly("org.postgresql","postgresql","42.2.19")
     // drivers for models
     implementation( "org.hibernate", "hibernate-validator", "6.1.5.Final")
