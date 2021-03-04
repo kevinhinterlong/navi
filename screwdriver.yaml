@@ -9,6 +9,8 @@ shared:
 
 jobs:
   main:
+    environment:
+      GRADLE_OPTS: "-Dorg.gradle.daemon=false"
     annotations:
       screwdriver.cd/ram: TURBO
       screwdriver.cd/cpu: TURBO
