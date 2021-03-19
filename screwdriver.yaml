@@ -19,6 +19,10 @@ shared:
           install-chrome: ./build-scripts/setup-chrome.sh
     jobs:
       main-npm-test-job: &main-npm-test-job
+        image: node:12
+        annotations:
+          screwdriver.cd/ram: LOW
+          screwdriver.cd/cpu: LOW
         steps:
           - *install-node
           - *npm-cache-verify
@@ -28,6 +32,8 @@ shared:
         requires:
           - ~pr
           - ~commit
+        environment:
+          JOBS: 1
   environment:
     NODE_VERSION: 14.16.1
     JOBS: 4
@@ -87,11 +93,12 @@ jobs:
       - ~pr
       - ~commit
   main:
+    image: screwdrivercd/noop-container
     annotations:
       screwdriver.cd/ram: MICRO
       screwdriver.cd/cpu: MICRO
     steps:
-      - echo "success"
+      - success: echo "success"
     requires:
       [
         lint,
