@@ -58,8 +58,6 @@ tasks.withType<Test> {
     testLogging {
         events("passed", "skipped", "failed")
     }
-    // set JVM arguments for the test JVM(s)
-    jvmArgs ("-Xmx2048m")
 }
 
 tasks.withType<ProcessResources> {
