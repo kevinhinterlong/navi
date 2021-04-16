@@ -1,42 +1,56 @@
 cache:
-  pipeline: [~/.npm, ~/.gradle]
+  pipeline:
+    - ~/.npm,
+    - ~/.gradle,
+    - $SD_SOURCE_DIR/node_modules
+    - $SD_SOURCE_DIR/packages/admin/node_modules
+    - $SD_SOURCE_DIR/packages/app/node_modules
+    - $SD_SOURCE_DIR/packages/core/node_modules
+    - $SD_SOURCE_DIR/packages/dashboards/node_modules
+    - $SD_SOURCE_DIR/packages/data/node_modules
+    - $SD_SOURCE_DIR/packages/directory/node_modules
+    - $SD_SOURCE_DIR/packages/notifications/node_modules
+    - $SD_SOURCE_DIR/packages/reports/node_modules
+    - $SD_SOURCE_DIR/packages/search/node_modules
+    - $SD_SOURCE_DIR/packages/webservice/node_modules
 
 shared:
-  image: maven:3.6.3-jdk-8
   annotations:
-    screwdriver.cd/ram: TURBO
-    screwdriver.cd/cpu: TURBO
     steps:
       - .: &install-node
           install-node: |
             sd-cmd exec screwdriver/install-nodejs@latest $NODE_VERSION
             export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh" && nvm use node
-      - .: &npm-cache-verify
-          npm-cache-verify: npm cache verify
       - .: &npm-ci
           npm-ci: npm ci --unsafe-perm
       - .: &install-chrome
           install-chrome: ./build-scripts/setup-chrome.sh
     jobs:
       main-npm-test-job: &main-npm-test-job
+        image: timbru31/node-chrome:14
+        annotations:
+          screwdriver.cd/ram: HIGH
+          screwdriver.cd/cpu: HIGH
         steps:
-          - *install-node
-          - *npm-cache-verify
           - *npm-ci
-          - *install-chrome
           - test-package: npx lerna run test --scope $PACKAGE --stream;
         requires:
           - ~pr
           - ~commit
+        environment:
+          JOBS: 1
   environment:
     NODE_VERSION: 14.16.1
-    JOBS: 4
+    HUSKY_SKIP_INSTALL: true
+    JOBS: 1
 
 jobs:
   lint:
     <<: *main-npm-test-job
+    annotations:
+      screwdriver.cd/ram: LOW
+      screwdriver.cd/cpu: LOW
     steps:
-      - *install-node
       - *npm-ci
       # TODO add lint meta https://docs.screwdriver.cd/user-guide/metadata#additional-pull-request-checks
       - lint-pretty: npx prettier -c --config prettier.config.js packages/*/{addon,tests}/**/*.{js,ts};
@@ -44,6 +58,8 @@ jobs:
       - lint-addons: npx lerna run lint --stream;
   main-admin:
     <<: *main-npm-test-job
+    annotations:
+      screwdriver.cd/ram: LOW
     environment:
       PACKAGE: navi-admin
   main-app:
@@ -79,6 +95,7 @@ jobs:
     environment:
       PACKAGE: navi-search
   main-webservice:
+    image: openjdk:11-jdk
     steps:
       - *install-node
       - *npm-ci
@@ -86,12 +103,15 @@ jobs:
     requires:
       - ~pr
       - ~commit
+    environment:
+      JOBS: 1
   main:
+    image: screwdrivercd/noop-container
     annotations:
       screwdriver.cd/ram: MICRO
       screwdriver.cd/cpu: MICRO
     steps:
-      - echo "success"
+      - success: echo "success"
     requires:
       [
         lint,
@@ -108,6 +128,10 @@ jobs:
       ]
 
   alpha-main:
+    image: maven:3.6.3-jdk-8
+    annotations:
+      screwdriver.cd/ram: TURBO
+      screwdriver.cd/cpu: TURBO
     steps:
       - *install-node
       - *npm-ci
@@ -127,19 +151,23 @@ jobs:
       - ~pr:0.2.x-alpha
 
   publish-npm:
+    image: node:14.16.1
+    annotations:
+      screwdriver.cd/ram: LOW
+      screwdriver.cd/cpu: LOW
     requires:
       - ~main
       - ~alpha-main
     environment:
       GIT_SHALLOW_CLONE: false
     steps:
-      - *install-node
       - *npm-ci
       - publish: ./scripts/npm-publish.sh
     secrets:
       - NPM_TOKEN
 
   publish-artifactory:
+    image: maven:3.6.3-jdk-8
     annotations:
       screwdriver.cd/ram: LOW
       screwdriver.cd/cpu: LOW
@@ -153,11 +181,11 @@ jobs:
       - ARTIFACTORY_KEY
 
   gh-pages:
+    image: node:14.16.1
     requires: main
     environment:
       BUILD_NAVI_DEMO: true
     steps:
-      - *install-node
       - *npm-ci
       - setup-ci: git clone https://github.com/screwdriver-cd/toolbox.git /tmp/ci
       - build-pages: |
