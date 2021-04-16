@@ -16,16 +16,11 @@ cache:
 
 shared:
   image: maven:3.6.3-jdk-8
-  annotations:
-    screwdriver.cd/ram: TURBO
-    screwdriver.cd/cpu: TURBO
     steps:
       - .: &install-node
           install-node: |
             sd-cmd exec screwdriver/install-nodejs@latest $NODE_VERSION
             export NVM_DIR="$HOME/.nvm" && . "$NVM_DIR/nvm.sh" && nvm use node
-      - .: &npm-cache-verify
-          npm-cache-verify: npm cache verify
       - .: &npm-ci
           npm-ci: npm ci --unsafe-perm
       - .: &install-chrome
@@ -37,7 +32,6 @@ shared:
           screwdriver.cd/cpu: HIGH
         steps:
           - *install-node
-          - *npm-cache-verify
           - *npm-ci
           - *install-chrome
           - test-package: npx lerna run test --scope $PACKAGE --stream;
@@ -49,11 +43,14 @@ shared:
   environment:
     NODE_VERSION: 14.16.1
     HUSKY_SKIP_INSTALL: true
-    JOBS: 4
+    JOBS: 1
 
 jobs:
   lint:
     <<: *main-npm-test-job
+    annotations:
+      screwdriver.cd/ram: LOW
+      screwdriver.cd/cpu: LOW
     steps:
       - *install-node
       - *npm-ci
@@ -132,6 +129,9 @@ jobs:
       ]
 
   alpha-main:
+    annotations:
+      screwdriver.cd/ram: TURBO
+      screwdriver.cd/cpu: TURBO
     steps:
       - *install-node
       - *npm-ci
@@ -151,6 +151,9 @@ jobs:
       - ~pr:0.2.x-alpha
 
   publish-npm:
+    annotations:
+      screwdriver.cd/ram: LOW
+      screwdriver.cd/cpu: LOW
     requires:
       - ~main
       - ~alpha-main
